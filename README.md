@@ -1,1 +1,3 @@
-echo "# melchior" >> README.md
+# melchior
+
+XX converter
