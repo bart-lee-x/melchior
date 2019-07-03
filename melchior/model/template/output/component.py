@@ -4,37 +4,13 @@ from typing import List, Optional, Union, Tuple, Callable
 
 from dataclasses_json import dataclass_json
 
-from melchior.validator.validator import Validator, ValidationResult
+from melchior.model.template.output.basic_card import BasicCard
+from melchior.model.template.output.commerce_card import CommerceCard
+from melchior.model.template.output.common import remove_null_value_field
+from melchior.model.template.output.simple_imsage import SimpleImage
+from melchior.model.template.output.simple_text import SimpleText
 
 
-def remove_null_value_field(cls):
-    def remove_nulls(d):
-        return {k: v for k, v in d.items() if v is not None}
-
-    def to_json(self,
-                *,
-                skipkeys: bool = False,
-                ensure_ascii: bool = True,
-                check_circular: bool = True,
-                allow_nan: bool = True,
-                indent: Optional[Union[int, str]] = None,
-                separators: Tuple[str, str] = None,
-                default: Callable = None,
-                sort_keys: bool = False,
-                **kw) -> str:
-        return json.dumps(remove_nulls(asdict(self)),
-                          skipkeys=skipkeys,
-                          ensure_ascii=ensure_ascii,
-                          check_circular=check_circular,
-                          allow_nan=allow_nan,
-                          indent=indent,
-                          separators=separators,
-                          default=default,
-                          sort_keys=sort_keys,
-                          **kw)
-
-    cls.to_json = to_json
-    return cls
 
 
 """
@@ -46,109 +22,6 @@ def remove_null_value_field(cls):
             }
         ]
 """
-
-
-@dataclass
-@dataclass_json
-class Link:
-    web: str
-    mobile: str = None
-    pc: str = None
-    mac: str = None
-    ios: str = None
-    android: str = None
-
-
-@remove_null_value_field
-@dataclass
-@dataclass_json
-class Thumbnail:
-    imageUrl: str
-    link: Link
-    fixedRatio: bool
-    width: int
-    height: int
-
-
-@dataclass()
-@dataclass_json
-class Profile:
-    text: str
-
-
-@dataclass
-@dataclass_json
-class Button:
-    text: str  # TODO
-
-
-@dataclass
-@dataclass_json
-class SimpleText(Validator):
-    text: str
-
-
-@dataclass
-@dataclass_json
-class SimpleImage(Validator):
-
-    def __init__(self, imageUrl: str, altText: str = None):
-
-        self.imageUrl = imageUrl
-        self.altText = altText
-
-        self.is_valid()
-        v_result = Validator.validate_simple_image(self)
-
-        if v_result.is_invalid():  # invalid
-            raise ComponentCreateException(v_result)
-
-    imageUrl: str
-    altText: str = ""
-
-
-@dataclass
-@dataclass_json
-class BasicCard:
-    title: str
-    description: str
-    thumbnail: Thumbnail
-    buttons: List[Button]
-
-
-@dataclass
-@dataclass_json
-class CommerceCard:
-    description: str
-    thumbnail: Thumbnail
-    price: int
-    currency: str  # won
-    profile: Profile
-    buttons: List[Button]  # kakaotalk에서는 1개 이상
-
-
-@dataclass_json
-@dataclass
-class HeadItem:
-    title: str
-    imageUrl: str = None
-
-
-@dataclass_json
-@dataclass
-class BodyItem:
-    title: str
-    description: str
-    imageUrl: str
-    link: Link
-
-
-@dataclass
-@dataclass_json
-class ListCard:
-    header: HeadItem
-    items: List[BodyItem]
-    buttons: List[Button]  # kakaotalk에서는 최대 5개
 
 
 @dataclass
@@ -166,14 +39,3 @@ class Component:
     simpleImage: SimpleImage = None
     basicCard: BasicCard = None
     carousel: Carousel = None
-
-
-class MelchiorException(Exception):
-    pass
-
-
-class ComponentCreateException(MelchiorException):
-    """"""
-    def __init__(self, validation_result: ValidationResult):
-        self.expression = validation_result.code
-        self.message = validation_result.message

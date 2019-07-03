@@ -2,9 +2,11 @@ import json
 import unittest
 from pprint import pprint
 
+from melchior.exceptions import ComponentCreateException
 from melchior.model.skill.request import SkillRequest
 from melchior.model.skill.response import SkillResponse, Template, TemplateBuilder
-from melchior.model.template.output.component import SimpleText, Component, SimpleImage, ComponentCreateException
+from melchior.model.template.output.component import SimpleText, Component, SimpleImage
+from melchior.validator.validator import ValidationStatus
 
 skillRequestString = """
 {
@@ -63,6 +65,7 @@ skillRequestString = """
   }
 """
 
+
 class TestToJsonSimple(unittest.TestCase):
 
     def test_simple(self):
@@ -96,10 +99,10 @@ class ValidationTest(unittest.TestCase):
 
     def test_simple_validation(self):
         simple_text = SimpleText('hi')
-        self.assertEqual(simple_text.is_valid().code, 0)
+        self.assertEqual(simple_text.is_valid().status, ValidationStatus.OK)
 
         simple_image2 = SimpleImage('http://')
-        self.assertEqual(simple_image2.is_valid().code, 0)
+        self.assertEqual(simple_image2.is_valid().status, ValidationStatus.OK)
 
         with self.assertRaises(ComponentCreateException):
             url = "hell"
@@ -109,12 +112,6 @@ class ValidationTest(unittest.TestCase):
 class TemplateTest(unittest.TestCase):
 
     def test_simple(self):
-        st = Component(simpleText=SimpleText("hi"))
-        si = Component(simpleImage=SimpleImage(imageUrl="http://"))
-
-        components = [st, si]
-        pprint(components)
-
         builder = TemplateBuilder()
         builder.add(SimpleText(""))
         builder.add(SimpleImage("http://"))

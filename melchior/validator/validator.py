@@ -1,4 +1,11 @@
 from dataclasses import dataclass
+from enum import Enum
+
+
+class ValidationStatus(Enum):
+    OK = (0, 'Ok')
+    UNKNOWN = (-999, 'Unknown')
+    INVALID_IMAGE_URL = (-101, 'Invalid Image Url')
 
 
 @dataclass
@@ -6,19 +13,18 @@ class ValidationResult:
     """
 
     """
-    code: int  # bool로?
-    message: str
+    status: ValidationStatus
 
     @staticmethod
     def ok():
-        return ValidationResult(0, "VERY GOOD")
+        return ValidationResult(ValidationStatus.OK)
 
     @staticmethod
     def unknown_error():
-        return ValidationResult(-999, "HELL")
+        return ValidationResult(ValidationStatus.UNKNOWN)
 
     def is_invalid(self):
-        return self.code != 0
+        return self.status.name != 'OK'
 
 
 class Validator:
@@ -41,9 +47,6 @@ class Validator:
     def validate_simple_image(simple_image) -> ValidationResult:
 
         if not simple_image.imageUrl.startswith('http'):
-            return ValidationResult(-1, "URL 형태가 아님")
+            return ValidationResult(ValidationStatus.INVALID_IMAGE_URL)
         else:
             return ValidationResult.ok()
-
-
-
