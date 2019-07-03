@@ -1,0 +1,54 @@
+{
+  "intent": {
+    "id": "5a25025be821273c3718893c",
+    "name": "FALLBACK INTENT",
+    "extra": {
+      "reason": {
+        "code": 1,
+        "message": "OK"
+      }
+    }
+  },
+  "userRequest": {
+    "timezone": "Asia/Seoul",
+    "params": {
+      "surface": "Kakaotalk.plusfriend"
+    },
+    "block": {
+      "id": "5a25025be821273c3718893c",
+      "name": "FALLBACK INTENT"
+    },
+    "utterance": "아하하허ㅏ라하하",
+    "lang": "kr",
+    "user": {
+      "id": "d09055b49c95a8e6c10fc8d8c01325f50a713971f2ec0b4c91af850e9805890be3",
+      "type": "botUserKey",
+      "properties": {
+        "botUserKey": "d09055b49c95a8e6c10fc8d8c01325f50a713971f2ec0b4c91af850e9805890be3",
+        "accountId": "1",
+        "plusfriendUserKey": "Bx4i0FQtFSq0",
+        "talkUserId": "1"
+      }
+    }
+  },
+  "contexts": [],
+  "skillOption": {
+    "isTrusted": true,
+    "botName": " 번역베타",
+    "isMini": false,
+    "isCbt": true,
+    "botId": "5a25021f26c6636625e33537",
+    "timeout": 5000
+  },
+  "bot": {
+    "id": "5a25021f26c6636625e33537",
+    "name": " 번역베타"
+  },
+  "action": {
+    "name": "번역",
+    "clientExtra": null,
+    "params": {},
+    "id": "5a250244e821273c3718893a",
+    "detailParams": {}
+  }
+}

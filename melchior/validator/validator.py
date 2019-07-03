@@ -10,6 +10,7 @@ class Validator:
         from melchior.model.template.output.component import SimpleText, SimpleImage
 
         if type(self) is SimpleText:
+            # 글자 제한 같은거
             return True
         elif type(self) is SimpleImage:
             return self._validate_simple_image()
