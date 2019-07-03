@@ -3,8 +3,8 @@ import unittest
 from pprint import pprint
 
 from melchior.model.skill.request import SkillRequest
-from melchior.model.template.output.component import SimpleText, Component, SimpleImage
-
+from melchior.model.skill.response import SkillResponse, Template, TemplateBuilder
+from melchior.model.template.output.component import SimpleText, Component, SimpleImage, ComponentCreateException
 
 skillRequestString = """
 {
@@ -75,9 +75,10 @@ class TestToJsonSimple(unittest.TestCase):
         self.assertEqual('hell', component_with_simple_text.simpleText.text)
 
     def test_component_simple_image(self):
-        simple_image = SimpleImage(imageUrl='hell')
+        url = "http://hell"
+        simple_image = SimpleImage(imageUrl=url)
         component_with_simple_text = Component(simpleImage=simple_image)
-        self.assertEqual('hell', component_with_simple_text.simpleImage.imageUrl)
+        self.assertEqual(url, component_with_simple_text.simpleImage.imageUrl)
 
     def test_remove_field_if_null_value(self):
         simple_text = SimpleText('hell')
@@ -95,13 +96,36 @@ class ValidationTest(unittest.TestCase):
 
     def test_simple_validation(self):
         simple_text = SimpleText('hi')
-        self.assertTrue(simple_text.is_valid())
-
-        simple_image = SimpleImage('hi')
-        self.assertFalse(simple_image.is_valid())
+        self.assertEqual(simple_text.is_valid().code, 0)
 
         simple_image2 = SimpleImage('http://')
-        self.assertTrue(simple_image2.is_valid())
+        self.assertEqual(simple_image2.is_valid().code, 0)
+
+        with self.assertRaises(ComponentCreateException):
+            url = "hell"
+            SimpleImage(url)
+
+
+class TemplateTest(unittest.TestCase):
+
+    def test_simple(self):
+        st = Component(simpleText=SimpleText("hi"))
+        si = Component(simpleImage=SimpleImage(imageUrl="http://"))
+
+        components = [st, si]
+        pprint(components)
+
+        builder = TemplateBuilder()
+        builder.add(SimpleText(""))
+        builder.add(SimpleImage("http://"))
+        builder.add(SimpleText("k"))
+
+        template = builder.build()
+
+        pprint(template)
+
+        self.assertEqual(3, len(template.outputs))
+        self.assertEqual("k", template.outputs[2].simpleText.text)
 
 
 class UsageTest(unittest.TestCase):
@@ -113,8 +137,13 @@ class UsageTest(unittest.TestCase):
         """
         skillRequestString
 
-        skillRequest = SkillRequest.from_json(skillRequestString)
-        pprint(skillRequest)
-        self.assertEqual("5a25025be821273c3718893c", skillRequest.intent.id)
-        self.assertEqual("FALLBACK INTENT", skillRequest.intent.name)
-        self.assertEqual(skillRequest.intent.extra["reason"]["code"], 1)
+        skill_request = SkillRequest.from_json(skillRequestString)
+        pprint(skill_request)
+        self.assertEqual("5a25025be821273c3718893c", skill_request.intent.id)
+        self.assertEqual("FALLBACK INTENT", skill_request.intent.name)
+        self.assertEqual(skill_request.intent.extra["reason"]["code"], 1)
+
+
+
+    # def test_skill_response_can_serialize(self):
+

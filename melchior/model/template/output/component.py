@@ -4,7 +4,7 @@ from typing import List, Optional, Union, Tuple, Callable
 
 from dataclasses_json import dataclass_json
 
-from melchior.validator.validator import Validator
+from melchior.validator.validator import Validator, ValidationResult
 
 
 def remove_null_value_field(cls):
@@ -91,6 +91,18 @@ class SimpleText(Validator):
 @dataclass
 @dataclass_json
 class SimpleImage(Validator):
+
+    def __init__(self, imageUrl: str, altText: str = None):
+
+        self.imageUrl = imageUrl
+        self.altText = altText
+
+        self.is_valid()
+        v_result = Validator.validate_simple_image(self)
+
+        if v_result.is_invalid():  # invalid
+            raise ComponentCreateException(v_result)
+
     imageUrl: str
     altText: str = ""
 
@@ -154,3 +166,14 @@ class Component:
     simpleImage: SimpleImage = None
     basicCard: BasicCard = None
     carousel: Carousel = None
+
+
+class MelchiorException(Exception):
+    pass
+
+
+class ComponentCreateException(MelchiorException):
+    """"""
+    def __init__(self, validation_result: ValidationResult):
+        self.expression = validation_result.code
+        self.message = validation_result.message
