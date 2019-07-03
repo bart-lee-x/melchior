@@ -4,8 +4,10 @@ from typing import List, Optional, Union, Tuple, Callable
 
 from dataclasses_json import dataclass_json
 
+from melchior.validator.validator import Validator
 
-def remove_null_value(cls):
+
+def remove_null_value_field(cls):
     def remove_nulls(d):
         return {k: v for k, v in d.items() if v is not None}
 
@@ -20,7 +22,6 @@ def remove_null_value(cls):
                 default: Callable = None,
                 sort_keys: bool = False,
                 **kw) -> str:
-
         return json.dumps(remove_nulls(asdict(self)),
                           skipkeys=skipkeys,
                           ensure_ascii=ensure_ascii,
@@ -47,8 +48,6 @@ def remove_null_value(cls):
 """
 
 
-
-
 @dataclass
 @dataclass_json
 class Link:
@@ -60,6 +59,7 @@ class Link:
     android: str = None
 
 
+@remove_null_value_field
 @dataclass
 @dataclass_json
 class Thumbnail:
@@ -70,6 +70,12 @@ class Thumbnail:
     height: int
 
 
+@dataclass()
+@dataclass_json
+class Profile:
+    text: str
+
+
 @dataclass
 @dataclass_json
 class Button:
@@ -78,15 +84,15 @@ class Button:
 
 @dataclass
 @dataclass_json
-class SimpleText:
+class SimpleText(Validator):
     text: str
 
 
 @dataclass
 @dataclass_json
-class SimpleImage:
+class SimpleImage(Validator):
     imageUrl: str
-    altText: str
+    altText: str = ""
 
 
 @dataclass
@@ -98,10 +104,53 @@ class BasicCard:
     buttons: List[Button]
 
 
-@remove_null_value
+@dataclass
+@dataclass_json
+class CommerceCard:
+    description: str
+    thumbnail: Thumbnail
+    price: int
+    currency: str  # won
+    profile: Profile
+    buttons: List[Button]  # kakaotalk에서는 1개 이상
+
+
+@dataclass_json
+@dataclass
+class HeadItem:
+    title: str
+    imageUrl: str = None
+
+
+@dataclass_json
+@dataclass
+class BodyItem:
+    title: str
+    description: str
+    imageUrl: str
+    link: Link
+
+
+@dataclass
+@dataclass_json
+class ListCard:
+    header: HeadItem
+    items: List[BodyItem]
+    buttons: List[Button]  # kakaotalk에서는 최대 5개
+
+
+@dataclass
+@dataclass_json
+class Carousel:
+    type: str
+    items: List[Union[BasicCard, CommerceCard]]
+
+
+@remove_null_value_field
 @dataclass_json
 @dataclass
 class Component:
     simpleText: SimpleText = None
     simpleImage: SimpleImage = None
     basicCard: BasicCard = None
+    carousel: Carousel = None
