@@ -8,6 +8,66 @@ from melchior.model.skill.response import SkillResponse, Template, TemplateBuild
 from melchior.model.template.output.component import SimpleText, Component, SimpleImage
 from melchior.validator.validator import ValidationStatus
 
+
+class TestToJsonSimple(unittest.TestCase):
+
+    def test_simple(self):
+        simple_text = SimpleText('hi')
+        self.assertEqual('hi', simple_text.text)
+
+    def test_component_with_simple_text_only(self):
+        simple_text = SimpleText('hell')
+        component_with_simple_text = Component(simpleText=simple_text)
+        self.assertEqual('hell', component_with_simple_text.simpleText.text)
+
+    def test_component_simple_image(self):
+        url = "http://hell"
+        simple_image = SimpleImage(image_url=url)
+        component_with_simple_text = Component(simpleImage=simple_image)
+        self.assertEqual(url, component_with_simple_text.simpleImage.imageUrl)
+
+    def test_remove_field_if_null_value(self):
+        simple_text = SimpleText('hell')
+        component_with_simple_text = Component(simpleText=simple_text)
+        self.assertEqual('hell', component_with_simple_text.simpleText.text)
+
+        converted_component = json.loads(component_with_simple_text.to_json())
+        self.assertEqual('hell', converted_component['simpleText']['text'])
+
+        with self.assertRaises(KeyError):
+            converted_component['simpleImage']
+
+
+class ValidationTest(unittest.TestCase):
+
+    def test_simple_validation(self):
+        simple_text = SimpleText('hi')
+        self.assertEqual(simple_text.is_valid().status, ValidationStatus.OK)
+
+        simple_image2 = SimpleImage('http://')
+        self.assertEqual(simple_image2.is_valid().status, ValidationStatus.OK)
+
+        with self.assertRaises(ComponentCreateException):
+            url = "hell"
+            SimpleImage(url)
+
+
+class TemplateTest(unittest.TestCase):
+
+    def test_simple(self):
+        builder = TemplateBuilder()
+        builder.add(SimpleText(""))
+        builder.add(SimpleImage("http://"))
+        builder.add(SimpleText("k"))
+
+        template = builder.build()
+
+        pprint(template)
+
+        self.assertEqual(3, len(template.outputs))
+        self.assertEqual("k", template.outputs[2].simpleText.text)
+
+
 skillRequestString = """
 {
     "intent": {
@@ -66,65 +126,6 @@ skillRequestString = """
 """
 
 
-class TestToJsonSimple(unittest.TestCase):
-
-    def test_simple(self):
-        simple_text = SimpleText('hi')
-        self.assertEqual('hi', simple_text.text)
-
-    def test_component_with_simple_text_only(self):
-        simple_text = SimpleText('hell')
-        component_with_simple_text = Component(simpleText=simple_text)
-        self.assertEqual('hell', component_with_simple_text.simpleText.text)
-
-    def test_component_simple_image(self):
-        url = "http://hell"
-        simple_image = SimpleImage(imageUrl=url)
-        component_with_simple_text = Component(simpleImage=simple_image)
-        self.assertEqual(url, component_with_simple_text.simpleImage.imageUrl)
-
-    def test_remove_field_if_null_value(self):
-        simple_text = SimpleText('hell')
-        component_with_simple_text = Component(simpleText=simple_text)
-        self.assertEqual('hell', component_with_simple_text.simpleText.text)
-
-        converted_component = json.loads(component_with_simple_text.to_json())
-        self.assertEqual('hell', converted_component['simpleText']['text'])
-
-        with self.assertRaises(KeyError):
-            converted_component['simpleImage']
-
-
-class ValidationTest(unittest.TestCase):
-
-    def test_simple_validation(self):
-        simple_text = SimpleText('hi')
-        self.assertEqual(simple_text.is_valid().status, ValidationStatus.OK)
-
-        simple_image2 = SimpleImage('http://')
-        self.assertEqual(simple_image2.is_valid().status, ValidationStatus.OK)
-
-        with self.assertRaises(ComponentCreateException):
-            url = "hell"
-            SimpleImage(url)
-
-
-class TemplateTest(unittest.TestCase):
-
-    def test_simple(self):
-        builder = TemplateBuilder()
-        builder.add(SimpleText(""))
-        builder.add(SimpleImage("http://"))
-        builder.add(SimpleText("k"))
-
-        template = builder.build()
-
-        pprint(template)
-
-        self.assertEqual(3, len(template.outputs))
-        self.assertEqual("k", template.outputs[2].simpleText.text)
-
-
 class UsageTest(unittest.TestCase):
 
     def test_skill_request_can_deserialize_from_chappie(self):
@@ -140,7 +141,4 @@ class UsageTest(unittest.TestCase):
         self.assertEqual("FALLBACK INTENT", skill_request.intent.name)
         self.assertEqual(skill_request.intent.extra["reason"]["code"], 1)
 
-
-
     # def test_skill_response_can_serialize(self):
-

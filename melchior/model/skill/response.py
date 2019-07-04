@@ -1,8 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
 
 from dataclasses_json import dataclass_json
-
 
 # https://i.kakao.com/docs/skill-response-format
 from melchior.model.template.output.component import Component, Carousel, BasicCard, SimpleImage, SimpleText

@@ -1,6 +1,5 @@
-import json
-from dataclasses import dataclass, asdict
-from typing import List, Optional, Union, Tuple, Callable
+from dataclasses import dataclass
+from typing import List, Union
 
 from dataclasses_json import dataclass_json
 
@@ -9,19 +8,6 @@ from melchior.model.template.output.commerce_card import CommerceCard
 from melchior.model.template.output.common import remove_null_value_field
 from melchior.model.template.output.simple_imsage import SimpleImage
 from melchior.model.template.output.simple_text import SimpleText
-
-
-
-
-"""
-"outputs": [
-            {
-                "simpleText": {
-                    "text": "간단한 텍스트 요소입니다."
-                }
-            }
-        ]
-"""
 
 
 @dataclass

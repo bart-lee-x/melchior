@@ -1,4 +1,5 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+
 from dataclasses_json import dataclass_json
 
 from melchior.exceptions import ComponentCreateException
@@ -9,13 +10,13 @@ from melchior.validator.validator import Validator
 @dataclass_json
 class SimpleImage(Validator):
 
-    def __init__(self, imageUrl: str, altText: str = None):
+    def __init__(self, image_url: str, alt_text: str = None):
 
-        self.imageUrl = imageUrl
-        self.altText = altText
+        self.imageUrl = image_url
+        self.altText = alt_text
 
         v_result = Validator.validate_simple_image(self)
-        if v_result.is_invalid():  # invalid
+        if v_result.is_invalid():
             raise ComponentCreateException(v_result)
 
     imageUrl: str
